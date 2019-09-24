@@ -14,6 +14,6 @@ module.exports = {
     Art: connection.model('Art', artSchema),
     Artist: connection.model('Artist', artistSchema),
     Auction: connection.model('Auction', auctionSchema),
-    AuctionBid: connection.model('AuctionBid', auctionBidSchema),
+    AuctionBid: connection.model('AuctionBid', auctionBidSchema, 'auctionBids'),
     Customer: connection.model('Customer', customerSchema)
 };

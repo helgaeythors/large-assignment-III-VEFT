@@ -1,5 +1,6 @@
 // Here the web service is setup and routes declared
 const artService = require('./services/artService');
+const customerService = require('./services/customerService');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -27,7 +28,7 @@ app.get('/api/arts/:id', function(req, res) {
    });
 });
 
-// /api/arts [POST] - Creates a new art (see how model should look like in Model section)
+// /api/arts [POST] - Creates a new art
 app.post('/api/arts', function(req, res) {
    artService.createArt(req.body, function(art) {
       return res.status(201).json(art);
@@ -43,12 +44,43 @@ app.post('/api/arts', function(req, res) {
 // /api/artists [POST] - Creates a new artist (see how model should look like in Model section)
 
 // /api/customers [GET] - Gets all customers
+app.get('/api/customers', function(req, res) {
+   customerService.getAllCustomers(function(customer) {
+      return res.json(customer);
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
+   });
+});
 
 // /api/customers/:id [GET] - Gets a customer by id
+app.get('/api/customers/:id', function(req, res) {
+   customerService.getCustomerById(req.params.id, function(customer) {
+      return res.json(customer);
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
+   });
+});
 
-// /api/customers [POST] - Creates a new customer (see how model should look like in Model section)
+// /api/customers [POST] - Creates a new customer
+app.post('/api/customers', function(req, res) {
+   customerService.createCustomer(req.body, function(customer) {
+      return res.status(201).json(customer);
+   }, function(err) {
+      return res.status(400).json(err);
+   });
+});
 
 // /api/customers/:id/auction-bids [GET] - Gets all auction bids associated with a customer
+app.get('/api/customers/:id/auction-bids', function(req, res) {
+   customerService.getCustomerAuctionBids(req.params.id, function(auctionBids) {
+      return res.json(auctionBids);
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
+   });
+});
 
 // /api/auctions [GET] - Gets all auctions
 
