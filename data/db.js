@@ -5,7 +5,10 @@ const auctionSchema = require('../schemas/auction');
 const auctionBidSchema = require('../schemas/auctionBid');
 const customerSchema = require('../schemas/customer');
 
-const connection = mongoose.createConnection('mongodb+srv://mansion_dbuser:12345@mansion-de-subastas-clgd2.mongodb.net/test?retryWrites=true&w=majority', { useNewUrlParser: true });
+const connection = mongoose.createConnection('mongodb+srv://veft_dbuser:hG3VsiG8JVRG8jTq@cluster0-5yngg.mongodb.net/largeassignment3DB', { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+});
 
 module.exports = {
     Art: connection.model('Art', artSchema),

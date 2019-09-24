@@ -5,8 +5,12 @@ const app = express();
 
 // /api/arts [GET] - Gets all arts
 app.get('/api/arts', function (req, res) {
-   // TODO
-   return res.json(artService.getAllArts());
+   artService.getAllArts(function(arts) {
+      return res.json(arts);
+   }, function(error) {
+      // TODO: send status 500?
+      throw new Error(error);
+   });
 });
 
 // /api/arts/:id [GET] - Gets an art by id

@@ -1,6 +1,12 @@
+const Art = require('../data/db').Art;
+
 const artService = () => {
+   
     const getAllArts = (cb, errorCb) => {
-        // Your implementation goes here
+        Art.find({}, function(err, arts) {
+            if (err) { errorCb(err); }
+            cb(arts);
+        });
     };
 
     const getArtById = (id, cb, errorCb) => {
