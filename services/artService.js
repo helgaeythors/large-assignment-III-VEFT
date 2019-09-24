@@ -10,11 +10,17 @@ const artService = () => {
     };
 
     const getArtById = (id, cb, errorCb) => {
-        // Your implementation goes here
+        Art.findById(id, function(err, art) {
+            if (err) { errorCb(err); }
+            cb(art);
+        });
     };
 
     const createArt = (art, cb, errorCb) => {
-        // Your implementation goes here
+        Art.create(art, function(err, result) {
+            if (err) { errorCb(err); }
+            cb(result);
+        });
     };
 
     return {

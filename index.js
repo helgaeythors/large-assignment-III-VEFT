@@ -1,21 +1,40 @@
 // Here the web service is setup and routes declared
 const artService = require('./services/artService');
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
+
+// define configurations
+app.use(bodyParser.json());
 
 // /api/arts [GET] - Gets all arts
 app.get('/api/arts', function (req, res) {
    artService.getAllArts(function(arts) {
       return res.json(arts);
-   }, function(error) {
-      // TODO: send status 500?
-      throw new Error(error);
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
    });
 });
 
 // /api/arts/:id [GET] - Gets an art by id
+app.get('/api/arts/:id', function(req, res) {
+   artService.getArtById(req.params.id, function(art) {
+      return res.json(art);
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
+   });
+});
 
 // /api/arts [POST] - Creates a new art (see how model should look like in Model section)
+app.post('/api/arts', function(req, res) {
+   artService.createArt(req.body, function(art) {
+      return res.status(201).json(art);
+   }, function(err) {
+      return res.status(400).json(err);
+   });
+});
 
 // /api/artists [GET] - Gets all artists
 
