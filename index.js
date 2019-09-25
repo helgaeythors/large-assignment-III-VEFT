@@ -1,6 +1,7 @@
 // Here the web service is setup and routes declared
 const artService = require('./services/artService');
 const customerService = require('./services/customerService');
+const auctionService = require('./services/auctionService');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -73,14 +74,6 @@ app.post('/api/customers', function(req, res) {
 });
 
 // /api/customers/:id/auction-bids [GET] - Gets all auction bids associated with a customer
-app.get('/api/customers/:id/auction-bids', function(req, res) {
-   customerService.getCustomerAuctionBids(req.params.id, function(auctionBids) {
-      return res.json(auctionBids);
-   }, function(err) {
-      // TODO: correct to send status 500?
-      return res.status(500).json(err);
-   });
-});
 
 // /api/auctions [GET] - Gets all auctions
 
@@ -91,6 +84,22 @@ app.get('/api/customers/:id/auction-bids', function(req, res) {
 (Conflict), otherwise it should return the customer which holds the highest bid. 
 If the auction had no bids, it should return a status code 200 (OK) with the 
 message: ‘This auction had no bids.’. */
+app.get('/api/auctions/:id/winner', function(req, res) {
+   auctionService.getAuctionWinner(req.params.id, function(result) {
+      // the auction is not finished
+      if (result == "Ongoing") { console.log("HERE"); return res.status(409); }
+
+      // the auction had no bids
+      else if (result == "No-bids") { return res.status(200).send("This auction had no bids."); }
+
+      // auction winner
+      else { return res.json(result); }
+
+   }, function(err) {
+      // TODO: correct to send status 500?
+      return res.status(500).json(err);
+   });
+});
 
 // /api/auctions [POST] - Create a new auction (see how model should look like in Model section). 
 /* The art id provided within the body must be a valid art id with its
