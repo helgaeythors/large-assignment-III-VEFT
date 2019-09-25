@@ -1,5 +1,7 @@
 // Here the web service is setup and routes declared
 const artService = require('./services/artService');
+const artistService = require('./services/artistService');
+const auctionService = require('./services/auctionService');
 const customerService = require('./services/customerService');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -38,10 +40,31 @@ app.post('/api/arts', function(req, res) {
 });
 
 // /api/artists [GET] - Gets all artists
+app.get('/api/artists', function(req, res){
+   artistService.getAllArtists(function(artist) {
+      return res.json(artist);
+   }, function(err){
+      return res.status(500).json(err);
+   });
+})
 
 // /api/artists/:id [GET] - Gets an artist by id
+app.get('/api/artists/:id', function(req, res){
+   artistService.getArtistById(req.params.id, function(artist){
+      return res.json(artist);
+   }), function(err){
+      return res.status(500).json(err);
+   }
+})
 
 // /api/artists [POST] - Creates a new artist (see how model should look like in Model section)
+app.post('/api/artists', function(req, res){
+   artistService.createArtist(req.body, function(artist){
+      return res.status(201).json(artist);
+   }, function(err){
+      if(err) { return res.status(500).json(err)}
+   })
+})
 
 // /api/customers [GET] - Gets all customers
 app.get('/api/customers', function(req, res) {
@@ -83,16 +106,34 @@ app.get('/api/customers/:id/auction-bids', function(req, res) {
 });
 
 // /api/auctions [GET] - Gets all auctions
+app.get('/api/auctions', function(req, res){
+   auctionService.getAllAuctions(function(auction){
+      return res.json(auction);
+   }, function(err) {
+      return res.status(500).json(err);
+   });
+});
 
 // /api/auctions/:id [GET] - Gets an auction by id
+app.get('/api/auctions/:id', function(req, res){
+   auctionService.getAuctionById(req.params.id, function(auction) {
+      return res.json(auction);
+   }, function(err){
+      return res.status(500).json(err);
+   });
+});
 
 // /api/auctions/:id/winner [GET] - Gets the winner of the auction. 
+
+
 /* If the auction is not finished the web service should return a status code 409 
 (Conflict), otherwise it should return the customer which holds the highest bid. 
 If the auction had no bids, it should return a status code 200 (OK) with the 
 message: ‘This auction had no bids.’. */
 
 // /api/auctions [POST] - Create a new auction (see how model should look like in Model section). 
+
+
 /* The art id provided within the body must be a valid art id with its
 property isAuctionItem set to true. If the isAuctionItem is set to false, the web
 service should return a status code 412 (Precondition failed). Also if there is an
