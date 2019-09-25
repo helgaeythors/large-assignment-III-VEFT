@@ -24,7 +24,16 @@ const auctionService = () => {
     };
 
 	const createAuction = (auction, cb, errorCb) => {
-        // Your implementation goes here
+        if(Auction.findById(auction.id) == null)
+        {
+            console.log(auction);
+        }
+
+           /* The art id provided within the body must be a valid art id with its
+property isAuctionItem set to true. If the isAuctionItem is set to false, the web
+service should return a status code 412 (Precondition failed). Also if there is an
+ongoing auction currently for this art, the web service should return a status code 409
+(Conflict). */
     };
 
 	const getAuctionBidsWithinAuction = (auctionId, cb, errorCb) => {

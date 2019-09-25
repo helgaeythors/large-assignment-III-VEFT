@@ -133,12 +133,20 @@ message: ‘This auction had no bids.’. */
 
 // /api/auctions [POST] - Create a new auction (see how model should look like in Model section). 
 
-
-/* The art id provided within the body must be a valid art id with its
+app.post('/api/auctions', function(req, res){
+   auctionService.createAuction(req.body, function(customer) {
+      return res.status(201).json(customer);
+   }, function(err){
+      return res.status()
+   });
+   /* The art id provided within the body must be a valid art id with its
 property isAuctionItem set to true. If the isAuctionItem is set to false, the web
 service should return a status code 412 (Precondition failed). Also if there is an
 ongoing auction currently for this art, the web service should return a status code 409
 (Conflict). */
+});
+
+
 
 // /api/auctions/:id/bids [GET] - Gets all auction bids associated with an auction
 
