@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Art = require('../data/db').Art;
+const Artist = require('../data/db').Artist;
 
 const artService = () => {
    
@@ -16,10 +18,30 @@ const artService = () => {
         });
     };
 
-    const createArt = (art, cb, errorCb) => {
-        Art.create(art, function(err, result) {
+/*     const createArt = (art, cb, errorCb) => {
+        // TODO: first check if artist id exists
+        Art.create(art, function(err, art) {
             if (err) { errorCb(err); }
-            cb(result);
+            cb(art);
+        });
+    }; */
+ 
+    const createArt = (art, cb, errorCb) => {
+        // first check if artist id exists
+        var artistId = mongoose.Types.ObjectId(art.artistId); // this throws an exception if it can't convert to objectId -> catch it?
+            
+        Artist.findById(artistId, function(err, artist) {
+            if (err) { errorCb(err); }
+            // If it exists then create the art
+            if (artist != null) { 
+                Art.create(art, function(err, art) {
+                    if (err) { errorCb(err); }
+                    cb(art);
+                });
+            }
+            else {
+                errorCb("Invalid artist ID");
+            }
         });
     };
 
