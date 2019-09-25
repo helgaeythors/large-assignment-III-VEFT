@@ -3,6 +3,7 @@ const artService = require('./services/artService');
 const artistService = require('./services/artistService');
 const auctionService = require('./services/auctionService');
 const customerService = require('./services/customerService');
+const auctionService = require('./services/auctionService');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -124,14 +125,22 @@ app.get('/api/auctions/:id', function(req, res){
 });
 
 // /api/auctions/:id/winner [GET] - Gets the winner of the auction. 
-
-
 /* If the auction is not finished the web service should return a status code 409 
 (Conflict), otherwise it should return the customer which holds the highest bid. 
 If the auction had no bids, it should return a status code 200 (OK) with the 
 message: ‘This auction had no bids.’. */
 
-// /api/auctions [POST] - Create a new auction (see how model should look like in Model section). 
+// TODO: virkar ekki
+app.get('/api/auctions/:id/winner', function(req, res) {
+   auctionService.getAuctionWinner(req.params.id, function(result) {
+      // the auction is not finished
+      if (result == "Ongoing") { console.log("HERE"); return res.status(409); }
+
+      // the auction had no bids
+      else if (result == "No-bids") { return res.status(200).send("This auction had no bids."); }
+
+      // auction winner
+      else { return res.json(result); }
 
 app.post('/api/auctions', function(req, res){
    auctionService.createAuction(req.body, function(customer) {
