@@ -17,14 +17,6 @@ const artService = () => {
             cb(art);
         });
     };
-
-/*     const createArt = (art, cb, errorCb) => {
-        // TODO: first check if artist id exists
-        Art.create(art, function(err, art) {
-            if (err) { errorCb(err); }
-            cb(art);
-        });
-    }; */
  
     const createArt = (art, cb, errorCb) => {
         // first check if artist id exists   
