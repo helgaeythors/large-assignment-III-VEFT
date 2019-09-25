@@ -27,10 +27,8 @@ const artService = () => {
     }; */
  
     const createArt = (art, cb, errorCb) => {
-        // first check if artist id exists
-        var artistId = mongoose.Types.ObjectId(art.artistId); // this throws an exception if it can't convert to objectId -> catch it?
-            
-        Artist.findById(artistId, function(err, artist) {
+        // first check if artist id exists   
+        Artist.findById(art.artistId, function(err, artist) {
             if (err) { errorCb(err); }
             // If it exists then create the art
             if (artist != null) { 
