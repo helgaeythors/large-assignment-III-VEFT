@@ -1,14 +1,21 @@
-// const database = require('../data/db');
+const database = require('../data/db');
 
 const auctionService = () => {
     const getAllAuctions = (cb, errorCb) => {
-        // Your implementation goes here
+        database.Auction.find({}, function(err, auction){
+            if(err) { errorCb(err); }
+            cb(auction);
+        }); 
     };
 
     const getAuctionById = (id, cb, errorCb) => {
-        // Your implementation goes here
+        database.Auction.findById(id, function(err, auction){
+            if(err) { errorCb(err); }
+            cb(auction);
+        })
     };
 
+    // TODO: VIRKAR EKKI ENN
     const getAuctionWinner = (auctionId, cb, errorCb) => {
         /*database.Auction.findById(auctionId, function(err, auction) {
             if (err) { errorCb(err); }
