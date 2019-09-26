@@ -137,6 +137,13 @@ app.post('/api/auctions', function(req, res){
 });
 
 // /api/auctions/:id/bids [GET] - Gets all auction bids associated with an auction
+app.get('/api/auctions/:id/bids', function(req, res){
+   auctionService.getAuctionBidsWithinAuction(req.params.id, function(auctionBids) {
+      return res.json(auctionBids);
+   }, function(err) {
+      return res.status(500).json(err);
+   });
+});
 
 // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
 /* Auction bids must be higher than the minimum
