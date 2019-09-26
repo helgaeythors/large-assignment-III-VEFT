@@ -1,4 +1,5 @@
 const database = require('../data/db');
+const mongoose = require('mongoose');
 
 const auctionService = () => {
     const getAllAuctions = (cb, errorCb) => {
@@ -102,53 +103,71 @@ const auctionService = () => {
             "customerId" : customerId,
             "price" : price
         }; 
-        
-        database.AuctionBid.find( { auctionId:auctionId },  function(err, bids){
-            if(err || !bids)
-            {
-                console.log("her inni");
-                database.AuctionBid.create(b, function(err, bids){
-                    console.log("Creating");
-                    console.log(b);
-                    if(err) { errorCb(500, "creation failed"); }
-                    cb(bids);
-                });
-            }
-            else 
-            {
-                console.log("lika her inni");
-                var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
-                if(price < highestBid)
+        var auctionIdObj = mongoose.Types.ObjectId(auctionId);
+        database.Auction.findById(auctionIdObj, function(err, auction) {
+            console.log(auction.miminumPrice);
+            if(err){ errorCb(500, err); }
+            else {
+                if (auction.endDate < new Date())
                 {
-                    errorCb(412, "This bid is lower than the current highest bid");
+                    errorCb(403, "Auction has already passed");
                 }
-                else
-                {
-                    database.Auction.findById(auctionId, function(err, auction){
-                        if(err){ errorCb(400, "Auction was not found"); }
+                else if (price <= auction.miminumPrice){
+                    errorCb(412, "This bid is lower than the minimum bid");
+                }
+                else {
+                    database.Customer.findById(customerId, function(err, customer) {
+                        if(err){ errorCb(500, err); }
                         else {
-                            if(auction.endDate < new Date())
-                            {
-                                errorCb(403, "Auction has already passed");
-                            }
-                            else {
-                                
-                                database.AuctionBid.create(b, function(err, bid){
-                                    if(err) { errorCb(500, "creation failed"); }
-                                    auction.getAuctionWinner = customerId;
-
-                                    database.Auction.updateOne( {_id : auctionId }, auction, function(err){
-                                        if(err) { errorCb(500, "creation failed"); }
-                                    })
-
-                                    cb(bid);
-                                });
-                            }
+                            database.AuctionBid.find({"auctionId": auctionId}, function(err, bids){
+                                if(err){ errorCb(500, err); }
+                                else if (bids == null) {
+                                    errorCb(500, err);
+                                }
+                                else {
+                                    // if no bids are found
+                                    if (bids.length <= 0) {
+                                        database.AuctionBid.create(b, function(err, bid){
+                                            if(err) { errorCb(500, err); }
+                                            else {
+                                                // update auction winner
+                                                auction.getAuctionWinner = customerId;
+    
+                                                database.Auction.updateOne( {_id : auctionId }, auction, function(err){
+                                                    if(err) { errorCb(500, "creation failed"); }
+                                                });
+                                                cb(bid);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
+                                        if(price < highestBid)
+                                        {
+                                            errorCb(412, "This bid is lower than the current highest bid");
+                                        }
+                                        else
+                                        {
+                                            database.AuctionBid.create(b, function(err, bid){
+                                                if(err) { errorCb(500, "creation failed"); }
+                                                auction.getAuctionWinner = customerId;
+            
+                                                database.Auction.updateOne( {_id : auctionId }, auction, function(err){
+                                                    if(err) { errorCb(500, "creation failed"); }
+                                                })
+            
+                                                cb(bid);
+                                            });
+                                        }
+                                    }
+                                }
+                            });
                         }
-                    });  
+                    });
                 }
+                
             }
-        })
+        }); 
     }
     
     // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
