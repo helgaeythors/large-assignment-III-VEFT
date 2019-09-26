@@ -59,21 +59,33 @@ const auctionService = () => {
 
 	const createAuction = (auction, cb, errorCb) => {
 
-        database.Art.findById(auction.artId, function(err, auction){
-            if(err) { errorCb(400, "Art wasn't found");  }
-
-            var art = database.Art.findById(auction.artId);
-            if(art.isAuctionItem == false)
-            {
-                errorCb(412, "This is not an auction item");    
+        //Check if the art excists
+        database.Art.findById(auction.artId, function(err, art){
+            if(err) { 
+                errorCb(400, "Art wasn't found");  
             }
-
-            cb(auction);
+            else {  
+                //Check if it is an auction item         
+                if(art.isAuctionItem == false)
+                {
+                    errorCb(409, "This is not an auction item");    
+                }
+                else {
+                    //Check if there has already an ongoing auction
+                    database.Auction.find({ artId: auction.artId }, function(err){
+                        if(!err) { 
+                            errorCb(412, "There is an ongoing auction");  
+                        }
+                        else {
+                            database.Auction.create(auction, function(err, auction) {
+                                if(err) { errorCb(err); }
+                                cb(auction);
+                            });
+                        }
+                    });
+                }
+            }
         });
-
-
-
-       
 
         /*if(art.isAuctionItem == false)
         {
