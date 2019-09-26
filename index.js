@@ -15,7 +15,6 @@ app.get('/api/arts', function (req, res) {
    artService.getAllArts(function(arts) {
       return res.json(arts);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -25,7 +24,6 @@ app.get('/api/arts/:id', function(req, res) {
    artService.getArtById(req.params.id, function(art) {
       return res.json(art);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -71,7 +69,6 @@ app.get('/api/customers', function(req, res) {
    customerService.getAllCustomers(function(customer) {
       return res.json(customer);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -81,7 +78,6 @@ app.get('/api/customers/:id', function(req, res) {
    customerService.getCustomerById(req.params.id, function(customer) {
       return res.json(customer);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -100,7 +96,6 @@ app.get('/api/customers/:id/auction-bids', function(req, res) {
    customerService.getCustomerAuctionBids(req.params.id, function(auctionBids) {
       return res.json(auctionBids);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -124,29 +119,15 @@ app.get('/api/auctions/:id', function(req, res){
 });
 
 // /api/auctions/:id/winner [GET] - Gets the winner of the auction. 
-/* If the auction is not finished the web service should return a status code 409 
-(Conflict), otherwise it should return the customer which holds the highest bid. 
-If the auction had no bids, it should return a status code 200 (OK) with the 
-message: ‘This auction had no bids.’. */
-
-// TODO: virkar ekki
 app.get('/api/auctions/:id/winner', function(req, res) {
    auctionService.getAuctionWinner(req.params.id, function(result) {
-
-      // Kalla thrisvar i follin og motaka tha statuskoda,
-      // 
-      // the auction is not finished
-      if (result == "Ongoing") { console.log("HERE"); return res.status(409); }
-
-      // the auction had no bids
-      else if (result == "No-bids") { return res.status(200).send("This auction had no bids."); }
-
-      // auction winner
-      else { return res.json(result); }
-
+         return res.json(result.customer); 
+   }, function(code, message) {
+      return res.status(code).send(message);
    });
 });
 
+// /api/auctions [POST]
 app.post('/api/auctions', function(req, res){
    console.log("hello");
    
@@ -156,14 +137,7 @@ app.post('/api/auctions', function(req, res){
    }, function(code, msg){
       return res.status(code).send(msg);
    });
-   /* The art id provided within the body must be a valid art id with its
-   property isAuctionItem set to true. If the isAuctionItem is set to false, the web
-   service should return a status code 412 (Precondition failed). Also if there is an
-   ongoing auction currently for this art, the web service should return a status code 409
-   (Conflict). */
 });
-
-
 
 // /api/auctions/:id/bids [GET] - Gets all auction bids associated with an auction
 
