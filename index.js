@@ -3,7 +3,6 @@ const artService = require('./services/artService');
 const artistService = require('./services/artistService');
 const auctionService = require('./services/auctionService');
 const customerService = require('./services/customerService');
-const auctionService = require('./services/auctionService');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -133,6 +132,9 @@ message: ‘This auction had no bids.’. */
 // TODO: virkar ekki
 app.get('/api/auctions/:id/winner', function(req, res) {
    auctionService.getAuctionWinner(req.params.id, function(result) {
+
+      // Kalla thrisvar i follin og motaka tha statuskoda,
+      // 
       // the auction is not finished
       if (result == "Ongoing") { console.log("HERE"); return res.status(409); }
 
@@ -142,17 +144,23 @@ app.get('/api/auctions/:id/winner', function(req, res) {
       // auction winner
       else { return res.json(result); }
 
+   });
+});
+
 app.post('/api/auctions', function(req, res){
-   auctionService.createAuction(req.body, function(customer) {
-      return res.status(201).json(customer);
-   }, function(err){
-      return res.status()
+   console.log("hello");
+   
+  // console.log(req.body);
+      auctionService.createAuction(req.body, function(auction) {
+      return res.status(201).json(auction);
+   }, function(code, msg){
+      return res.status(code).send(msg);
    });
    /* The art id provided within the body must be a valid art id with its
-property isAuctionItem set to true. If the isAuctionItem is set to false, the web
-service should return a status code 412 (Precondition failed). Also if there is an
-ongoing auction currently for this art, the web service should return a status code 409
-(Conflict). */
+   property isAuctionItem set to true. If the isAuctionItem is set to false, the web
+   service should return a status code 412 (Precondition failed). Also if there is an
+   ongoing auction currently for this art, the web service should return a status code 409
+   (Conflict). */
 });
 
 

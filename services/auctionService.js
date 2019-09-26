@@ -52,16 +52,35 @@ const auctionService = () => {
     };
 
 	const createAuction = (auction, cb, errorCb) => {
-        if(Auction.findById(auction.id) == null)
-        {
-            console.log(auction);
-        }
 
+        database.Art.findById(auction.artId, function(err, auction){
+            if(err) { errorCb(400, "Art wasn't found");  }
+
+            var art = database.Art.findById(auction.artId);
+            if(art.isAuctionItem == false)
+            {
+                errorCb(412, "This is not an auction item");    
+            }
+
+            cb(auction);
+        });
+
+
+
+       
+
+        /*if(art.isAuctionItem == false)
+        {
+            errorCb(412, "This is not an auction item");          
+        }*/
+        
+        
+        
            /* The art id provided within the body must be a valid art id with its
-property isAuctionItem set to true. If the isAuctionItem is set to false, the web
-service should return a status code 412 (Precondition failed). Also if there is an
-ongoing auction currently for this art, the web service should return a status code 409
-(Conflict). */
+            property isAuctionItem set to true. If the isAuctionItem is set to false, the web
+            service should return a status code 412 (Precondition failed). Also if there is an
+            ongoing auction currently for this art, the web service should return a status code 409
+            (Conflict). */
     };
 
 	const getAuctionBidsWithinAuction = (auctionId, cb, errorCb) => {
