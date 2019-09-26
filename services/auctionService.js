@@ -78,7 +78,7 @@ const auctionService = () => {
                         }
                         else {
                             database.Auction.create(auction, function(err, auction) {
-                                if(err) { errorCb(err); }
+                                if(err) { errorCb(500, "Creation failed"); }
                                 cb(auction);
                             });
                         }
@@ -96,8 +96,66 @@ const auctionService = () => {
     };
 
 	const placeNewBid = (auctionId, customerId, price, cb, errorCb) => {
-		// Your implementation goes here
-	}
+        
+        var b = {
+            "auctionId" : auctionId,
+            "customerId" : customerId,
+            "price" : price
+        }; 
+        
+        database.AuctionBid.findById(auctionId, function(err, bids){
+            if(err)
+            {
+                database.AuctionBid.create(b, function(err, bid){
+                    if(err) { errorCb(500, "creation failed"); }
+                    cb(bid);
+                });
+            }
+            else 
+            {
+                var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
+                if(price < highestBid)
+                {
+                    errorCb(412, "This bid is lower than the current highest bid");
+                }
+                else
+                {
+                    database.Auction.findById(auctionId, function(err, auction){
+                        if(err){ errorCb(400, "Auction was not found"); }
+                        else {
+                            if(auction.endDate < new Date())
+                            {
+                                errorCb(403, "Auction has already passed");
+                            }
+                            else {
+                                
+                                database.AuctionBid.create(b, function(err, bid){
+                                    if(err) { errorCb(500, "creation failed"); }
+                                    auction.getAuctionWinner = customerId;
+
+                                    database.Auction.updateOne( {_id : auctionId }, auction, function(err){
+                                        if(err) { errorCb(500, "creation failed"); }
+                                    })
+
+                                    cb(bid);
+                                });
+                            }
+                        }
+                    });  
+                }
+            }
+        })
+
+        price
+
+        
+    }
+    
+    // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
+    /*  If the auction has already passed its end date,
+    the web service should return a status code 403 (Forbidden). As a side-effect the
+    auctionWinner property in the Auction schema should be updated to the latest
+    highest bidder. */
 
     return {
         getAllAuctions,
