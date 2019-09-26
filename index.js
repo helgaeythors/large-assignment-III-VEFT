@@ -146,13 +146,13 @@ app.get('/api/auctions/:id/bids', function(req, res){
 });
 
 // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
-/* Auction bids must be higher than the minimum
-price and must also be higher than the current highest bid. If the auction bid price is
-lower than the minimum price or current highest bid, the web service should return a
-status code 412 (Precondition failed). If the auction has already passed its end date,
-the web service should return a status code 403 (Forbidden). As a side-effect the
-auctionWinner property in the Auction schema should be updated to the latest
-highest bidder. */
+app.post('/api/auctions/:id/bids', function(req, res) {
+   /* auctionService.placeNewBid(req.params.id, , function(bid){
+
+   }, function(code, message){
+
+   }); */
+});
 
 // http://localhost:3000
 app.listen(3000, function() {
