@@ -103,16 +103,20 @@ const auctionService = () => {
             "price" : price
         }; 
         
-        database.AuctionBid.findById(auctionId, function(err, bids){
-            if(err)
+        database.AuctionBid.find( { auctionId:auctionId },  function(err, bids){
+            if(err || !bids)
             {
-                database.AuctionBid.create(b, function(err, bid){
+                console.log("her inni");
+                database.AuctionBid.create(b, function(err, bids){
+                    console.log("Creating");
+                    console.log(b);
                     if(err) { errorCb(500, "creation failed"); }
-                    cb(bid);
+                    cb(bids);
                 });
             }
             else 
             {
+                console.log("lika her inni");
                 var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
                 if(price < highestBid)
                 {
@@ -145,10 +149,6 @@ const auctionService = () => {
                 }
             }
         })
-
-        price
-
-        
     }
     
     // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
