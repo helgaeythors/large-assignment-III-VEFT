@@ -148,13 +148,13 @@ app.get('/api/auctions/:id/bids', function(req, res){
    });
 });
 
-// /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
+// /api/auctions/:id/bids [POST] - Creates a new auction bid
 app.post('/api/auctions/:id/bids', function(req, res) {
-   /* auctionService.placeNewBid(req.params.id, , function(bid){
-
+   auctionService.placeNewBid(req.params.id, req.body.customerId, req.body.price, function(bid){
+      return res.status(201).json(bid);
    }, function(code, message){
-
-   }); */
+      return res.status(code).send(message);
+   });
 });
 
 // http://localhost:3000
