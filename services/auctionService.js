@@ -2,9 +2,9 @@ const database = require('../data/db');
 
 const auctionService = () => {
     const getAllAuctions = (cb, errorCb) => {
-        database.Auction.find({}, function(err, auction){
+        database.Auction.find({}, function(err, auctions){
             if(err) { errorCb(err); }
-            cb(auction);
+            cb(auctions);
         }); 
     };
 
@@ -102,7 +102,10 @@ const auctionService = () => {
     };
 
 	const getAuctionBidsWithinAuction = (auctionId, cb, errorCb) => {
-        // Your implementation goes here
+        database.AuctionBid.find({ "auctionId": auctionId }, function(err, bids) {
+            if (err) { errorCb(err); }
+            cb(bids);
+        });
     };
 
 	const placeNewBid = (auctionId, customerId, price, cb, errorCb) => {
