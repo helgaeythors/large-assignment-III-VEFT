@@ -3,7 +3,6 @@ const artService = require('./services/artService');
 const artistService = require('./services/artistService');
 const auctionService = require('./services/auctionService');
 const customerService = require('./services/customerService');
-const auctionService = require('./services/auctionService');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -16,7 +15,6 @@ app.get('/api/arts', function (req, res) {
    artService.getAllArts(function(arts) {
       return res.json(arts);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -26,7 +24,6 @@ app.get('/api/arts/:id', function(req, res) {
    artService.getArtById(req.params.id, function(art) {
       return res.json(art);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -72,7 +69,6 @@ app.get('/api/customers', function(req, res) {
    customerService.getAllCustomers(function(customer) {
       return res.json(customer);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -82,7 +78,6 @@ app.get('/api/customers/:id', function(req, res) {
    customerService.getCustomerById(req.params.id, function(customer) {
       return res.json(customer);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -101,7 +96,6 @@ app.get('/api/customers/:id/auction-bids', function(req, res) {
    customerService.getCustomerAuctionBids(req.params.id, function(auctionBids) {
       return res.json(auctionBids);
    }, function(err) {
-      // TODO: correct to send status 500?
       return res.status(500).json(err);
    });
 });
@@ -133,18 +127,10 @@ message: ‘This auction had no bids.’. */
 // TODO: virkar ekki
 app.get('/api/auctions/:id/winner', function(req, res) {
    auctionService.getAuctionWinner(req.params.id, function(result) {
-      // the auction is not finished
-      if (result == "Ongoing") { console.log("HERE"); return res.status(409); }
-
-      // the auction had no bids
-      else if (result == "No-bids") { return res.status(200).send("This auction had no bids."); }
-
-      // auction winner
-      else { return res.json(result); }
-
-   }, function(err) {
-      // TODO: correct to send status 500?
-      return res.status(500).json(err);
+         console.log("HERE CUSTOMER"); 
+         return res.json(result.customer); 
+   }, function(code, message) {
+      return res.status(code).send(message);
    });
 });
 
