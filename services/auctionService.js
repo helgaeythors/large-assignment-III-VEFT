@@ -58,16 +58,47 @@ const auctionService = () => {
     };
 
 	const createAuction = (auction, cb, errorCb) => {
-        if(Auction.findById(auction.id) == null)
-        {
-            console.log(auction);
-        }
 
+        //Check if the art excists
+        database.Art.findById(auction.artId, function(err, art){
+            if(err) { 
+                errorCb(400, "Art wasn't found");  
+            }
+            else {  
+                //Check if it is an auction item         
+                if(art.isAuctionItem == false)
+                {
+                    errorCb(409, "This is not an auction item");    
+                }
+                else {
+                    //Check if there has already an ongoing auction
+                    database.Auction.find({ artId: auction.artId }, function(err){
+                        if(!err) { 
+                            errorCb(412, "There is an ongoing auction");  
+                        }
+                        else {
+                            database.Auction.create(auction, function(err, auction) {
+                                if(err) { errorCb(err); }
+                                cb(auction);
+                            });
+                        }
+                    });
+                }
+            }
+        });
+
+        /*if(art.isAuctionItem == false)
+        {
+            errorCb(412, "This is not an auction item");          
+        }*/
+        
+        
+        
            /* The art id provided within the body must be a valid art id with its
-property isAuctionItem set to true. If the isAuctionItem is set to false, the web
-service should return a status code 412 (Precondition failed). Also if there is an
-ongoing auction currently for this art, the web service should return a status code 409
-(Conflict). */
+            property isAuctionItem set to true. If the isAuctionItem is set to false, the web
+            service should return a status code 412 (Precondition failed). Also if there is an
+            ongoing auction currently for this art, the web service should return a status code 409
+            (Conflict). */
     };
 
 	const getAuctionBidsWithinAuction = (auctionId, cb, errorCb) => {

@@ -129,10 +129,13 @@ app.get('/api/auctions/:id/winner', function(req, res) {
 
 // /api/auctions [POST]
 app.post('/api/auctions', function(req, res){
-   auctionService.createAuction(req.body, function(customer) {
-      return res.status(201).json(customer);
-   }, function(err){
-      return res.status()
+   console.log("hello");
+   
+  // console.log(req.body);
+      auctionService.createAuction(req.body, function(auction) {
+      return res.status(201).json(auction);
+   }, function(code, msg){
+      return res.status(code).send(msg);
    });
 });
 
