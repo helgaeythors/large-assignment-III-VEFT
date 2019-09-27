@@ -4,23 +4,21 @@ const mongoose = require('mongoose');
 const auctionService = () => {
     const getAllAuctions = (cb, errorCb) => {
         database.Auction.find({}, function(err, auctions){
-            if(err) { errorCb(err); }
+            if(err) { errorCb(404, "Auctions were not found"); }
             cb(auctions);
         }); 
     };
 
     const getAuctionById = (id, cb, errorCb) => {
         database.Auction.findById(id, function(err, auction){
-            if(err) { errorCb(err); }
+            if(err) { errorCb(404, "Auction was not found"); }
             cb(auction);
         })
     };
 
     const getAuctionWinner = (auctionId, cb, errorCb) => {
         database.Auction.findById(auctionId, function(err, auction) {
-            if (err) {
-                errorCb(500, err);
-            }
+            if (err) { errorCb(404, "Auction was not found"); }
             else {
                 var returnObj = {};
                 
@@ -32,7 +30,7 @@ const auctionService = () => {
                     // find bids
                     database.AuctionBid.find({ "auctionId": auction.id }, function(err, bids) { 
                         if (err) { 
-                            errorCb(500, err);
+                            errorCb(404, err);
                         }
                         else {
                             // check if no results
@@ -44,7 +42,7 @@ const auctionService = () => {
                                 var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
                                 var objHighestBid = bids.find(bid => bid.price = highestBid);
                                 database.Customer.findById(objHighestBid.customerId, function(err, customer) {
-                                    if (err) { errorCb(err); }
+                                    if (err) { errorCb(404, "Customer was not found"); }
                                     returnObj.customer = customer;
                                     
                                     // return the object with cb function
@@ -91,22 +89,21 @@ const auctionService = () => {
 
 	const getAuctionBidsWithinAuction = (auctionId, cb, errorCb) => {
         database.AuctionBid.find({ "auctionId": auctionId }, function(err, bids) {
-            if (err) { errorCb(err); }
+            if (err) { errorCb(404, "Auction bids were not found"); }
             cb(bids);
         });
     };
 
-	const placeNewBid = (auctionId, customerId, price, cb, errorCb) => {
-        
+    const placeNewBid = (auctionId, customerId, price, cb, errorCb) => {    
         var b = {
             "auctionId" : auctionId,
             "customerId" : customerId,
             "price" : price
         }; 
-        var auctionIdObj = mongoose.Types.ObjectId(auctionId);
-        database.Auction.findById(auctionIdObj, function(err, auction) {
+       
+        database.Auction.findById(auctionId, function(err, auction) {
             console.log(auction.miminumPrice);
-            if(err){ errorCb(500, err); }
+            if(err){ errorCb(400, "Auction was not found"); }
             else {
                 if (auction.endDate < new Date())
                 {
@@ -117,24 +114,24 @@ const auctionService = () => {
                 }
                 else {
                     database.Customer.findById(customerId, function(err, customer) {
-                        if(err){ errorCb(500, err); }
+                        if(err){ errorCb(400, "Customer was not found"); }
                         else {
                             database.AuctionBid.find({"auctionId": auctionId}, function(err, bids){
                                 if(err){ errorCb(500, err); }
                                 else if (bids == null) {
-                                    errorCb(500, err);
+                                    errorCb(400, "Aution was not found");
                                 }
                                 else {
                                     // if no bids are found
                                     if (bids.length <= 0) {
                                         database.AuctionBid.create(b, function(err, bid){
-                                            if(err) { errorCb(500, err); }
+                                            if(err) { errorCb(500, "Failed to create auction bid"); }
                                             else {
                                                 // update auction winner
                                                 auction.getAuctionWinner = customerId;
     
                                                 database.Auction.updateOne( {_id : auctionId }, auction, function(err){
-                                                    if(err) { errorCb(500, "creation failed"); }
+                                                    if(err) { errorCb(500, "Update of auctionWinner failed"); }
                                                 });
                                                 cb(bid);
                                             }
@@ -153,7 +150,7 @@ const auctionService = () => {
                                                 auction.getAuctionWinner = customerId;
             
                                                 database.Auction.updateOne( {_id : auctionId }, auction, function(err){
-                                                    if(err) { errorCb(500, "creation failed"); }
+                                                    if(err) { errorCb(500, "Update of auctionWinner failed"); }
                                                 })
             
                                                 cb(bid);
@@ -169,6 +166,8 @@ const auctionService = () => {
             }
         }); 
     }
+
+
     
     // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
     /*  If the auction has already passed its end date,
