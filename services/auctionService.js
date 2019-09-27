@@ -13,7 +13,7 @@ const auctionService = () => {
         database.Auction.findById(id, function(err, auction){
             if(err) { errorCb(404, "Auction was not found"); }
             cb(auction);
-        })
+        });
     };
 
     const getAuctionWinner = (auctionId, cb, errorCb) => {
@@ -102,14 +102,13 @@ const auctionService = () => {
         }; 
        
         database.Auction.findById(auctionId, function(err, auction) {
-            console.log(auction.miminumPrice);
             if(err){ errorCb(400, "Auction was not found"); }
             else {
                 if (auction.endDate < new Date())
                 {
                     errorCb(403, "Auction has already passed");
                 }
-                else if (price <= auction.miminumPrice){
+                else if (price < auction.minimumPrice){
                     errorCb(412, "This bid is lower than the minimum bid");
                 }
                 else {
@@ -128,9 +127,10 @@ const auctionService = () => {
                                             if(err) { errorCb(500, "Failed to create auction bid"); }
                                             else {
                                                 // update auction winner
-                                                auction.getAuctionWinner = customerId;
+                                                var objAuction = auction.toObject();
+                                                objAuction.auctionWinner = customerId;
     
-                                                database.Auction.updateOne( {_id : auctionId }, auction, function(err){
+                                                database.Auction.updateOne( {_id : auctionId }, objAuction, function(err){
                                                     if(err) { errorCb(500, "Update of auctionWinner failed"); }
                                                 });
                                                 cb(bid);
@@ -139,17 +139,19 @@ const auctionService = () => {
                                     }
                                     else {
                                         var highestBid = Math.max.apply(Math, bids.map(function(bid) { return bid.price; }))
-                                        if(price < highestBid)
+                                        if(price <= highestBid)
                                         {
-                                            errorCb(412, "This bid is lower than the current highest bid");
+                                            errorCb(412, "This bid is lower than or equal to the current highest bid");
                                         }
                                         else
                                         {
                                             database.AuctionBid.create(b, function(err, bid){
                                                 if(err) { errorCb(500, "creation failed"); }
-                                                auction.getAuctionWinner = customerId;
+
+                                                var objAuction = auction.toObject();
+                                                objAuction.auctionWinner = customerId;
             
-                                                database.Auction.updateOne( {_id : auctionId }, auction, function(err){
+                                                database.Auction.updateOne( {_id : auctionId }, objAuction, function(err){
                                                     if(err) { errorCb(500, "Update of auctionWinner failed"); }
                                                 })
             
@@ -166,14 +168,6 @@ const auctionService = () => {
             }
         }); 
     }
-
-
-    
-    // /api/auctions/:id/bids [POST] - Creates a new auction bid (see how model should look like in Model section). 
-    /*  If the auction has already passed its end date,
-    the web service should return a status code 403 (Forbidden). As a side-effect the
-    auctionWinner property in the Auction schema should be updated to the latest
-    highest bidder. */
 
     return {
         getAllAuctions,

@@ -147,7 +147,6 @@ app.get('/api/auctions/:id/bids', function(req, res){
 
 // /api/auctions/:id/bids [POST] - Creates a new auction bid
 app.post('/api/auctions/:id/bids', function(req, res) {
-   console.log("Trying to place an auction bid");
    auctionService.placeNewBid(req.params.id, req.body.customerId, req.body.price, function(bid){
       return res.status(201).json(bid);
    }, function(code, message){
